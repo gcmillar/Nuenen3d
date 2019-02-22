@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## Stress3d
 
 [Active Online Link to Application](https://gcmillar.github.io/stress3d/).
@@ -6,3 +7,8 @@ This application uses cyclists' physiological data to see how stress and emotion
 
 ![Image](img/stress_toggle.gif)
 ```
+=======
+# Nuenen3d
+
+https://gcmillar.github.io/Nuenen3d/
+>>>>>>> bcccdf8cf9c30b97b0a5a2ec9677740d8e68f8c8
