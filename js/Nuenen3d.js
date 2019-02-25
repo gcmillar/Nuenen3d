@@ -101,19 +101,18 @@ map.on('style.load', function() {
         type: 'geojson',
         data: 'https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/Nuenen_all_geojson'
     });
+    map.addSource('vincentre_beacons_polys_geojson', {
+        type: 'geojson',
+        data: 'https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/vincentre_beacons_polys_geojson'
+    });
 
     map.addLayer(threeJSModel, 'waterway-label');
     map.addLayer({
-        "id": "Nuenen_all",
-        "type": "circle",
-        "source": "Nuenen_all_geojson",
-        "paint": {
-            "circle-radius": {
-                'base': 6,
-                'stops': [[12, 6], [70, 350]],
-            },
-            "circle-opacity": 1,
-            "circle-color": {
+		'id': 'room-extrusion',
+		'type': 'Polygon',
+		},
+		'paint': {
+			'fill-color': {
               property: 'conductance_z',
               type: 'exponential',
               stops: [
@@ -122,8 +121,31 @@ map.on('style.load', function() {
                 [1, '#f4a582'],
                 [3, '#b2182b'],
                 ]
-            }
-        },
-        // 'filter': ['==', 'participant', 11]
-    }, 'waterway-label');
+            },
+			'fill-opacity': 0.4
+		}
+	}, 'waterway-label');
+    // map.addLayer({
+    //     "id": "Nuenen_all",
+    //     "type": "circle",
+    //     "source": "Nuenen_all_geojson",
+    //     "paint": {
+    //         "circle-radius": {
+    //             'base': 6,
+    //             'stops': [[12, 6], [70, 350]],
+    //         },
+    //         "circle-opacity": 1,
+    //         "circle-color": {
+    //           property: 'conductance_z',
+    //           type: 'exponential',
+    //           stops: [
+    //             [-1,'#2166ac'],
+    //             [0, '#92c5de'],
+    //             [1, '#f4a582'],
+    //             [3, '#b2182b'],
+    //             ]
+    //         }
+    //     },
+    //     // 'filter': ['==', 'participant', 11]
+    // }, 'waterway-label');
 });
