@@ -110,7 +110,6 @@ map.on('style.load', function() {
     map.addLayer({
 		'id': 'room-extrusion',
 		'type': 'Polygon',
-		},
 		'paint': {
 			'fill-color': {
               property: 'conductance_z',
