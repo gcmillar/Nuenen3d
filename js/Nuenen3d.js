@@ -52,7 +52,7 @@ var threeJSModel = {
         this.scene.add(directionalLight2);
 
         var loader = new THREE.GLTFLoader();
-        loader.load('gltfmodels/FirstFloor.gltf', (function (gltf) {
+        loader.load('https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/gltfmodels/FirstFloor.gltf', (function (gltf) {
             this.scene.add(gltf.scene);
         }).bind(this));
         this.map = map;
@@ -97,10 +97,10 @@ map.on('style.load', function() {
     //         'fill-extrusion-height': ["get", "height"]
     //     }
     // }, 'waterway-label');
-    map.addSource('Nuenen_all_geojson', {
-        type: 'geojson',
-        data: 'https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/Nuenen_all_geojson'
-    });
+    // map.addSource('Nuenen_all_geojson', {
+    //     type: 'geojson',
+    //     data: 'https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/Nuenen_all_geojson'
+    // });
     map.addSource('vincentre_beacons_polys_geojson', {
         type: 'geojson',
         data: 'https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/vincentre_beacons_polys_geojson'
@@ -109,7 +109,9 @@ map.on('style.load', function() {
     map.addLayer(threeJSModel, 'waterway-label');
     map.addLayer({
 		'id': 'room-extrusion',
-		'type': 'Polygon',
+		"type": "fill",
+		"source": "vincentre_beacons_polys_geojson",
+		'layout': {},
 		'paint': {
 			'fill-color': {
               property: 'conductance_z',
