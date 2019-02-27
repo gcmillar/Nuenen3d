@@ -11,7 +11,6 @@ var map = new mapboxgl.Map({
 
 // converts from WGS84 Longitude, Latitude into a unit vector anchor at the top left as needed for GL JS custom layers
 var fromLL = function (lon,lat) {
-    // derived from https://gist.github.com/springmeyer/871897
     var extent = 20037508.34;
 
     var x = lon * extent / 180;
@@ -43,17 +42,19 @@ var threeJSModel = {
         this.camera = new THREE.Camera();
         this.scene = new THREE.Scene();
 
-        var directionalLight = new THREE.DirectionalLight(0xffffff);
-        directionalLight.position.set(0, -70, 100).normalize();
-        this.scene.add(directionalLight);
 
-        var directionalLight2 = new THREE.DirectionalLight(0xffffff);
-        directionalLight2.position.set(0, 70, 100).normalize();
-        this.scene.add(directionalLight2);
+        var light = new THREE.HemisphereLight( 0xF3F2EC, 0x292A2A, 2 );
+        this.scene.add( light );
+
+        // var directionalLight2 = new THREE.DirectionalLight(0x888888);
+        // directionalLight2.position.set(0, 70, 0).normalize();
+        // this.scene.add(directionalLight2);
 
         var loader = new THREE.GLTFLoader();
         loader.load('https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/gltfmodels/FirstFloor.gltf', (function (gltf) {
             this.scene.add(gltf.scene);
+
+
         }).bind(this));
         this.map = map;
 
@@ -63,6 +64,7 @@ var threeJSModel = {
         });
 
         this.renderer.autoClear = false;
+
     },
     render: function(gl, matrix) {
         var rotationX = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), transform.rotateX);
@@ -81,6 +83,61 @@ var threeJSModel = {
         this.renderer.state.reset();
         this.renderer.render(this.scene, this.camera);
         this.map.triggerRepaint();
+
+
+    }
+}
+
+var threeJSModel_ground = {
+    id: 'custom_layer',
+    type: 'custom',
+    onAdd: function(map, gl) {
+        this.camera = new THREE.Camera();
+        this.scene = new THREE.Scene();
+
+
+        var light = new THREE.HemisphereLight( 0xF3F2EC, 0x292A2A, 2 );
+        this.scene.add( light );
+
+        // var directionalLight2 = new THREE.DirectionalLight(0x888888);
+        // directionalLight2.position.set(0, 70, 0).normalize();
+        // this.scene.add(directionalLight2);
+
+        var loader = new THREE.GLTFLoader();
+        loader.load('https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/gltfmodels/FirstFloor.gltf', (function (gltf) {
+            this.scene.add(gltf.scene);
+
+
+        }).bind(this));
+        this.map = map;
+
+        this.renderer = new THREE.WebGLRenderer({
+            canvas: map.getCanvas(),
+            context: gl
+        });
+
+        this.renderer.autoClear = false;
+
+    },
+    render: function(gl, matrix) {
+        var rotationX = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), transform.rotateX);
+        var rotationY = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), transform.rotateY);
+        var rotationZ = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 0, 1), transform.rotateZ);
+
+        var m = new THREE.Matrix4().fromArray(matrix);
+        var l = new THREE.Matrix4().makeTranslation(transform.translateX, transform.translateY, transform.translateZ)
+            .scale(new THREE.Vector3(transform.scale, -transform.scale, transform.scale))
+            .multiply(rotationX)
+            .multiply(rotationY)
+            .multiply(rotationZ);
+
+        this.camera.projectionMatrix.elements = matrix;
+        this.camera.projectionMatrix = m.multiply(l);
+        this.renderer.state.reset();
+        this.renderer.render(this.scene, this.camera);
+        this.map.triggerRepaint();
+
+
     }
 }
 
@@ -94,6 +151,7 @@ map.on('style.load', function() {
     //     'minzoom': 15,
     //     'paint': {
     //         'fill-extrusion-color': '#ccc',
+    //         'fill-extrusion-opacity': .25,
     //         'fill-extrusion-height': ["get", "height"]
     //     }
     // }, 'waterway-label');
@@ -107,8 +165,9 @@ map.on('style.load', function() {
     });
 
     map.addLayer(threeJSModel, 'waterway-label');
+
     map.addLayer({
-		'id': 'room-extrusion',
+		'id': '1st-Floor',
 		"type": "fill",
 		"source": "vincentre_beacons_polys_geojson",
 		'layout': {},
@@ -117,13 +176,18 @@ map.on('style.load', function() {
               property: 'conductance_z',
               type: 'exponential',
               stops: [
-                [-1,'#2166ac'],
-                [0, '#92c5de'],
-                [1, '#f4a582'],
-                [3, '#b2182b'],
+                [-5,'#204098'],
+                [-3.5,'#3645FF'],
+                // [-2.5, '#5C73FF'],
+                [-2.5, '#9FBAF0'],
+                [0, '#F7F7F7'],
+                [2.5, '#FD916E'],
+                // [2.5, '#FC7431'],
+                [3.5, '#D83B29'],
+                [5, '#B2000C'],
                 ]
             },
-			'fill-opacity': 0.4
+			'fill-opacity': 0.7
 		}
 	}, 'waterway-label');
     // map.addLayer({
