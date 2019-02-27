@@ -5,7 +5,7 @@ var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/outdoors-v11?optimize=true',
     center: [5.5509, 51.47686],
-    zoom: 17.5,
+    zoom: 18.5,
     pitch: 60
 });
 
@@ -36,7 +36,7 @@ var THREE = window.THREE;
 // Create the Mapbox Custom Layer object
 // See 
 var threeJSModel = {
-    id: 'custom_layer',
+    id: 'Floor: First',
     type: 'custom',
     onAdd: function(map, gl) {
         this.camera = new THREE.Camera();
@@ -89,22 +89,17 @@ var threeJSModel = {
 }
 
 var threeJSModel_ground = {
-    id: 'custom_layer',
+    id: 'Floor: Ground',
     type: 'custom',
     onAdd: function(map, gl) {
         this.camera = new THREE.Camera();
         this.scene = new THREE.Scene();
 
-
         var light = new THREE.HemisphereLight( 0xF3F2EC, 0x292A2A, 2 );
         this.scene.add( light );
 
-        // var directionalLight2 = new THREE.DirectionalLight(0x888888);
-        // directionalLight2.position.set(0, 70, 0).normalize();
-        // this.scene.add(directionalLight2);
-
         var loader = new THREE.GLTFLoader();
-        loader.load('https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/gltfmodels/FirstFloor.gltf', (function (gltf) {
+        loader.load('https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/gltfmodels/GroundFloor.gltf', (function (gltf) {
             this.scene.add(gltf.scene);
 
 
@@ -137,80 +132,111 @@ var threeJSModel_ground = {
         this.renderer.render(this.scene, this.camera);
         this.map.triggerRepaint();
 
-
     }
 }
 
-map.on('style.load', function() {
-    // map.addLayer({
-    //     'id': '3d-buildings',
-    //     'source': 'composite',
-    //     'source-layer': 'building',
-    //     'filter': ['==', 'extrude', 'true'],
-    //     'type': 'fill-extrusion',
-    //     'minzoom': 15,
-    //     'paint': {
-    //         'fill-extrusion-color': '#ccc',
-    //         'fill-extrusion-opacity': .25,
-    //         'fill-extrusion-height': ["get", "height"]
-    //     }
-    // }, 'waterway-label');
-    // map.addSource('Nuenen_all_geojson', {
-    //     type: 'geojson',
-    //     data: 'https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/Nuenen_all_geojson'
-    // });
-    map.addSource('vincentre_beacons_polys_geojson', {
+map.on('load', function() {
+    map.addSource('groundfloor_beacons_polys_geojson', {
+        type: 'geojson',
+        data: 'https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/groundfloor_beacons_polys_geojson'
+    });
+
+    map.addSource('firstfloor_beacons_polys_geojson', {
         type: 'geojson',
         data: 'https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/vincentre_beacons_polys_geojson'
     });
 
+    map.addLayer(threeJSModel_ground, 'waterway-label');
+
     map.addLayer(threeJSModel, 'waterway-label');
 
     map.addLayer({
-		'id': '1st-Floor',
-		"type": "fill",
-		"source": "vincentre_beacons_polys_geojson",
-		'layout': {},
-		'paint': {
-			'fill-color': {
+        'id': 'Data: Ground',
+        "type": "fill",
+        "source": "groundfloor_beacons_polys_geojson",
+        'layout': {},
+        'paint': {
+            'fill-color': {
               property: 'conductance_z',
               type: 'exponential',
               stops: [
                 [-5,'#204098'],
                 [-3.5,'#3645FF'],
-                // [-2.5, '#5C73FF'],
                 [-2.5, '#9FBAF0'],
                 [0, '#F7F7F7'],
                 [2.5, '#FD916E'],
-                // [2.5, '#FC7431'],
                 [3.5, '#D83B29'],
                 [5, '#B2000C'],
                 ]
             },
-			'fill-opacity': 0.7
-		}
-	}, 'waterway-label');
-    // map.addLayer({
-    //     "id": "Nuenen_all",
-    //     "type": "circle",
-    //     "source": "Nuenen_all_geojson",
-    //     "paint": {
-    //         "circle-radius": {
-    //             'base': 6,
-    //             'stops': [[12, 6], [70, 350]],
-    //         },
-    //         "circle-opacity": 1,
-    //         "circle-color": {
-    //           property: 'conductance_z',
-    //           type: 'exponential',
-    //           stops: [
-    //             [-1,'#2166ac'],
-    //             [0, '#92c5de'],
-    //             [1, '#f4a582'],
-    //             [3, '#b2182b'],
-    //             ]
-    //         }
-    //     },
-    //     // 'filter': ['==', 'participant', 11]
-    // }, 'waterway-label');
+            'fill-opacity': 0.7
+        }
+    }, 'waterway-label');
+
+    map.addLayer({
+        'id': 'Data: First',
+        "type": "fill",
+        "source": "firstfloor_beacons_polys_geojson",
+        'layout': {},
+        'paint': {
+            'fill-color': {
+              property: 'conductance_z',
+              type: 'exponential',
+              stops: [
+                [-5,'#204098'],
+                [-3.5,'#3645FF'],
+                [-2.5, '#9FBAF0'],
+                [0, '#F7F7F7'],
+                [2.5, '#FD916E'],
+                [3.5, '#D83B29'],
+                [5, '#B2000C'],
+                ]
+            },
+            'fill-opacity': 0.7
+        }
+    }, 'waterway-label');
+});
+
+var toggleableLayerIds = ['Floor: Ground','Floor: First', 'Data: Ground', 'Data: First'];
+
+for (var i = 0; i < toggleableLayerIds.length; i++) {
+    var id = toggleableLayerIds[i];
+
+    var link = document.createElement('a');
+    link.href = '#';
+    link.className = 'active';
+    link.textContent = id;
+
+    link.onclick = function (e) {
+        var clickedLayer = this.textContent;
+        e.preventDefault();
+        e.stopPropagation();
+
+        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+        if (visibility === 'visible') {
+            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+            this.className = '';
+        } else {
+            this.className = 'active';
+            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+        }
+    };
+
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+}
+
+
+map.on('load', function() {
+    // Insert the layer beneath any symbol layer.
+    var layers = map.getStyle().layers;
+
+    var labelLayerId;
+    for (var i = 0; i < layers.length; i++) {
+        if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
+            labelLayerId = layers[i].id;
+            break;
+        }
+    }
 });
