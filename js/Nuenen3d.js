@@ -197,7 +197,7 @@ map.on('load', function() {
     }, 'waterway-label');
 });
 
-var toggleableLayerIds = ['Floor: Ground','Floor: First', 'Data: Ground', 'Data: First'];
+var toggleableLayerIds = ['Floor: Ground', 'Data: Ground', 'Floor: First', 'Data: First'];
 
 for (var i = 0; i < toggleableLayerIds.length; i++) {
     var id = toggleableLayerIds[i];
