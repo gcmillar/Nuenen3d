@@ -156,6 +156,13 @@ map.on('load', function() {
         data: 'https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/vincentre_beacons_polys_geojson'
     });
 
+    map.addSource('outdoor_geojson', {
+        type: 'geojson',
+        data: "phasic_vect_geojson_clean",
+        // 'https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/phasic_vect_geojson'
+    });
+
+
     map.addLayer({
         'id': 'Data: Ground',
         "type": "fill",
@@ -201,9 +208,95 @@ map.on('load', function() {
             'fill-opacity': 0.7
         }
     }, 'waterway-label');
+
+    console.log(map.addLayer({
+        'id': 'extrusion',
+        'type': 'fill-extrusion',
+        "source": "outdoor_geojson",
+        // 'filter': ['==', 'extrude', 'true'],
+        'paint': {
+          'fill-extrusion-color': {
+            property: 'value',
+            type: 'exponential',
+            stops: [
+              [0,'#204098'],
+              [0.2,'#3645FF'],
+              [0.4, '#9FBAF0'],
+              [0.6, '#F7F7F7'],
+              [0.8, '#FD916E'],
+              [1, '#D83B29'],
+              [1.4, '#B2000C'],
+              ]
+          },
+          'fill-extrusion-height': [
+            "interpolate", ["linear"], ["zoom"],
+            10, 0,
+            20, ['get', 'value'],
+          ],
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 0.4
+        }
+      }, 'waterway-label'));
+
+    //     'id': 'Outdoor',
+    //     'type': 'fill-extrusion',
+    //     "source": "outdoor_geojson",
+    //     'filter': ['==', 'extrude', 'true'],
+    //     'layout': {},
+    //     'minzoom': 0,
+    //     'paint': {
+    //         'fill-extrusion-opacity': 0.75,
+    //         'fill-extrusion-color': {
+    //           'property': 'value',
+    //           'type': 'categorical',
+    //           'stops': [
+    //                 [-1,'#2166ac'],
+    //                 [0, '#92c5de'],
+    //                 [1, '#f4a582'],
+    //                 [3, '#b2182b'],
+    //                 ]
+    //         },
+    //         'fill-extrusion-height': ["get", "value"],
+    //         // 'fill-extrusion-base': [
+    //         //     "interpolate", ["linear"], ["zoom"],
+    //         //    10, 0,
+    //         //     15, ["get", "value"]
+    //         // ],
+    //         // 'fill-extrusion-height': {
+    //         //   property: 'value',
+    //         //   type: 'categorical',
+    //         //   stops: [
+    //         //   [10, 0]
+    //         // ]
+    //         // }
+    //       }
+    //     // 'paint': {
+    //     //     'fill-extrusion-color': {
+    //     //         property: 'value',
+    //     //         type: 'exponential',
+    //     //         stops: [
+    //     //           [-1,'#2166ac'],
+    //     //           [0, '#92c5de'],
+    //     //           [1, '#f4a582'],
+    //     //           [3, '#b2182b'],
+    //     //           ]
+    //     //       },
+    //     //     // use an 'interpolate' expression to add a smooth transition effect to the buildings as the user zooms in
+    //     //     'fill-extrusion-height': ['get', 'value'],
+    //     //     // 'fill-extrusion-height': 
+    //     //     // {
+    //     //     //     'type': 'identity',
+    //     //     //             'property': 'value'
+    //     //     // },
+    //     //     'fill-extrusion-opacity': 0.6
+    //     // }
+    // }, 'waterway-label');
+
 });
 
-var toggleableLayerIds = ['Floor: Ground', 'Data: Ground', 'Floor: First', 'Data: First'];
+
+
+var toggleableLayerIds = ['Floor: Ground', 'Data: Ground', 'Floor: First', 'Data: First', 'Outdoor'];
 
 for (var i = 0; i < toggleableLayerIds.length; i++) {
     var id = toggleableLayerIds[i];
