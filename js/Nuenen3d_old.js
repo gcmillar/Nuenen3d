@@ -5,11 +5,11 @@ var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/outdoors-v11?optimize=true',
     center: [5.5509, 51.47686],
-    zoom: 18.5,
-    pitch: 60
+    zoom: 19,
+    pitch: 55
 });
 
-// converts from WGS84 Longitude, Latitude into a unit vector anchor at the top left as needed for GL JS custom layers
+converts from WGS84 Longitude, Latitude into a unit vector anchor at the top left as needed for GL JS custom layers
 var fromLL = function (lon,lat) {
     var extent = 20037508.34;
 
@@ -33,10 +33,10 @@ var transform = {
 
 var THREE = window.THREE;
 
-// Create the Mapbox Custom Layer object
-// See 
+Create the Mapbox Custom Layer object
+See 
 var threeJSModel = {
-    id: 'Floor: First',
+    id: 'First Floor',
     type: 'custom',
     onAdd: function(map, gl) {
         this.camera = new THREE.Camera();
@@ -92,7 +92,7 @@ var threeJSModel = {
 }
 
 var threeJSModel_ground = {
-    id: 'Floor: Ground',
+    id: 'Ground Floor',
     type: 'custom',
     onAdd: function(map, gl) {
         this.camera = new THREE.Camera();
@@ -141,8 +141,10 @@ var threeJSModel_ground = {
     }
 }
 
+
+
 map.on('load', function() {
-    map.addLayer(threeJSModel_ground, 'waterway-label');
+    map.addLayer(threeJSModelGround, 'waterway-label');
 
     map.addLayer(threeJSModel, 'waterway-label');
 
@@ -155,6 +157,13 @@ map.on('load', function() {
         type: 'geojson',
         data: 'https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/vincentre_beacons_polys_geojson'
     });
+
+    // map.addSource('outdoor_geojson', {
+    //     type: 'geojson',
+    //     data: "phasic_vect_geojson_clean",
+    //     // 'https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/phasic_vect_geojson'
+    // });
+
 
     map.addLayer({
         'id': 'Data: Ground',
@@ -201,10 +210,99 @@ map.on('load', function() {
             'fill-opacity': 0.7
         }
     }, 'waterway-label');
+    // map.setLayoutProperty('First Floor', 'visibility', 'none');
+    // map.setLayoutProperty('Data: First', 'visibility', 'none');
+
+    // console.log(map.addLayer({
+    //     'id': 'extrusion',
+    //     'type': 'fill-extrusion',
+    //     "source": "outdoor_geojson",
+    //     // 'filter': ['==', 'extrude', 'true'],
+    //     'paint': {
+    //       'fill-extrusion-color': {
+    //         property: 'value',
+    //         type: 'exponential',
+    //         stops: [
+    //           [0,'#204098'],
+    //           [0.2,'#3645FF'],
+    //           [0.4, '#9FBAF0'],
+    //           [0.6, '#F7F7F7'],
+    //           [0.8, '#FD916E'],
+    //           [1, '#D83B29'],
+    //           [1.4, '#B2000C'],
+    //           ]
+    //       },
+    //       'fill-extrusion-height': [
+    //         "interpolate", ["linear"], ["zoom"],
+    //         10, 0,
+    //         20, ['get', 'value'],
+    //       ],
+    //       'fill-extrusion-base': 0,
+    //       'fill-extrusion-opacity': 0.4
+    //     }
+    //   }, 'waterway-label'));
+
+    //     'id': 'Outdoor',
+    //     'type': 'fill-extrusion',
+    //     "source": "outdoor_geojson",
+    //     'filter': ['==', 'extrude', 'true'],
+    //     'layout': {},
+    //     'minzoom': 0,
+    //     'paint': {
+    //         'fill-extrusion-opacity': 0.75,
+    //         'fill-extrusion-color': {
+    //           'property': 'value',
+    //           'type': 'categorical',
+    //           'stops': [
+    //                 [-1,'#2166ac'],
+    //                 [0, '#92c5de'],
+    //                 [1, '#f4a582'],
+    //                 [3, '#b2182b'],
+    //                 ]
+    //         },
+    //         'fill-extrusion-height': ["get", "value"],
+    //         // 'fill-extrusion-base': [
+    //         //     "interpolate", ["linear"], ["zoom"],
+    //         //    10, 0,
+    //         //     15, ["get", "value"]
+    //         // ],
+    //         // 'fill-extrusion-height': {
+    //         //   property: 'value',
+    //         //   type: 'categorical',
+    //         //   stops: [
+    //         //   [10, 0]
+    //         // ]
+    //         // }
+    //       }
+    //     // 'paint': {
+    //     //     'fill-extrusion-color': {
+    //     //         property: 'value',
+    //     //         type: 'exponential',
+    //     //         stops: [
+    //     //           [-1,'#2166ac'],
+    //     //           [0, '#92c5de'],
+    //     //           [1, '#f4a582'],
+    //     //           [3, '#b2182b'],
+    //     //           ]
+    //     //       },
+    //     //     // use an 'interpolate' expression to add a smooth transition effect to the buildings as the user zooms in
+    //     //     'fill-extrusion-height': ['get', 'value'],
+    //     //     // 'fill-extrusion-height': 
+    //     //     // {
+    //     //     //     'type': 'identity',
+    //     //     //             'property': 'value'
+    //     //     // },
+    //     //     'fill-extrusion-opacity': 0.6
+    //     // }
+    // }, 'waterway-label');
+
 });
 
-var toggleableLayerIds = ['Floor: Ground', 'Data: Ground', 'Floor: First', 'Data: First'];
 
+
+var toggleableLayerIds = ['Ground Floor', 'First Floor'];
+// 'Data: Ground'
+// 'Data: First'
 for (var i = 0; i < toggleableLayerIds.length; i++) {
     var id = toggleableLayerIds[i];
 
@@ -213,19 +311,45 @@ for (var i = 0; i < toggleableLayerIds.length; i++) {
     link.className = 'active';
     link.textContent = id;
 
-    link.onclick = function (e) {
+    link.onclick = function(e) {
         var clickedLayer = this.textContent;
         e.preventDefault();
         e.stopPropagation();
 
         var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
 
-        if (visibility === 'visible') {
-            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-            this.className = '';
+        if (visibility === 'none') {
+            switch(clickedLayer) {
+                case 'Ground Floor':
+                    map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+                    map.setLayoutProperty('Data: Ground', 'visibility', 'visible');
+                    this.className = 'active';
+                    break;
+                case 'First Floor': // create styling variable to hold source, call on 
+                    map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+                    map.setLayoutProperty('Data: First', 'visibility', 'visible');
+                    this.className = 'active';
+                    break;
+                default:
+                    console.log("Missing passed layer.")
+            }
         } else {
-            this.className = 'active';
-            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+            switch(clickedLayer) {
+                case 'Ground Floor':
+                    this.className = 'active';
+                    map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+                    map.setLayoutProperty('Data: Ground', 'visibility', 'none');
+                    this.className = 'inactive';
+                    break;
+                case 'First Floor':
+                    this.className = 'active';
+                    map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+                    map.setLayoutProperty('Data: First', 'visibility', 'none');
+                    this.className = 'inactive';
+                    break;
+                default:
+                    console.log("error ")
+            }
         }
     };
 
