@@ -1,4 +1,8 @@
-body { margin:0; padding:0; }
+body { 
+  margin:0; 
+  padding:0; 
+  font-family: 'Helvetica Neue', Helvetica, Arial, Sans-serif;
+}
 #map { position:fixed; top:0; bottom:0; width:100%; }
 #controls { position:absolute; top:0; left:0; }
 h1 {
@@ -210,7 +214,11 @@ a {
     margin-right: 5px;
     z-index: 1000;
 }*/
-
+.mapboxgl-popup {
+  max-width: 400px;
+  font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  }
+  
 .mapboxgl-popup-content {
     background-color: #202020;
     color: #fff;

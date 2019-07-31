@@ -4,13 +4,14 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZ2NtaWxsYXIiLCJhIjoiY2pvcDhrbGl4MDFvaTNrczR0d
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/outdoors-v11?optimize=true',
+    // dark --> 'mapbox://styles/mapbox/dark-v10?optimize=true',
     center: [5.5509, 51.47686],
     zoom: 19,
     pitch: 55
 });
 
 // parameters to ensure the model is georeferenced correctly on the map
-var modelOrigin = [5.5509, 51.47686];
+var modelOrigin = [5.55088, 51.47687561]; 
 var modelAltitude = 0;
 var modelAltitudeFirstFloor = 3.3;
 var modelRotate = [Math.PI / 2, 19.925, 0];
@@ -56,7 +57,7 @@ var threeJSModelGround = {
             
             // use the three.js GLTF loader to add the 3D model to the three.js scene
             var loader = new THREE.GLTFLoader();
-            loader.load('https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/gltfmodels/GroundFloor.gltf', (function (gltf) {
+            loader.load('gltfmodels/GroundFloor.gltf', (function (gltf) {
             this.scene.add(gltf.scene);
             }).bind(this));
             this.map = map;
@@ -108,7 +109,7 @@ var threeJSModel = {
             
             // use the three.js GLTF loader to add the 3D model to the three.js scene
             var loader = new THREE.GLTFLoader();
-            loader.load('https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/gltfmodels/FirstFloor.gltf', (function (gltf) {
+            loader.load('gltfmodels/FirstFloor.gltf', (function (gltf) {
             this.scene.add(gltf.scene);
             }).bind(this));
             this.map = map;
@@ -149,12 +150,12 @@ map.on('load', function() {
 
     map.addSource('groundfloor_beacons_polys_geojson', {
         type: 'geojson',
-        data: 'https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/groundfloor_beacons_polys_geojson'
+        data: 'groundfloor_beacons_polys_geojson'
     });
 
     map.addSource('firstfloor_beacons_polys_geojson', {
         type: 'geojson',
-        data: 'https://raw.githubusercontent.com/gcmillar/Nuenen3d/master/vincentre_beacons_polys_geojson'
+        data: 'vincentre_beacons_polys_geojson'
     });
 
     // map.addSource('outdoor_geojson', {
@@ -183,7 +184,7 @@ map.on('load', function() {
                 [5, '#B2000C'],
                 ]
             },
-            'fill-opacity': 0.7
+            'fill-opacity': 1,
         }
     }, 'waterway-label');
 
@@ -206,13 +207,59 @@ map.on('load', function() {
                 [5, '#B2000C'],
                 ]
             },
-            'fill-opacity': 0.7
+            'fill-opacity': 0.1,
         }
     }, 'waterway-label');
 
 });
 
+map.once('style.load', function(e) {
+    // init();
+    // map.addControl(new mapboxgl.NavigationControl());
+    map.on('click', function(e) {
+        var features = map.queryRenderedFeatures(e.point, {
+            layers: ['Data: Ground', 'Data: First']
+        });
+        if (!features.length) {
+            return;
+        }
+        var feature = features[0];
+        var popup = new mapboxgl.Popup()
+            .setLngLat(map.unproject(e.point))
+            .setHTML('<h3>Is This Exhibit Exciting?</h3>' +
+                '<ul>' +
+                '<li>Visitors Skin Conductance: <b>' + feature.properties.conductance_z.toFixed(2) + '</b></li>' +
+                '</ul>')
+            .addTo(map);
+       
+    });
 
+    //Hide loading bar once tiles from geojson are loaded
+        map.on('data', function(e) {
+            if (e.dataType === 'source' && e.sourceId === 'groundfloor_beacons_polys_geojson') {
+                document.getElementById("menu");
+            }
+        })
+
+        // Use the same approach as above to indicate that the symbols are clickable
+        // by changing the cursor style to 'pointer'.
+        map.on('mousemove', function(e) {
+            var features = map.queryRenderedFeatures(e.point, {
+                layers: ['Data: Ground', 'Data: First']
+            });
+            map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
+        });
+
+    let icon = document.getElementById('icon');
+
+    // Add zoom and rotation controls to the map.
+    map.addControl(new mapboxgl.NavigationControl());
+
+    chartInit()
+
+    map.on("render", chartSetData);
+
+});
 
 var toggleableLayerIds = ['Ground Floor', 'First Floor'];
 // 'Data: Ground'
@@ -284,3 +331,15 @@ map.on('load', function() {
         }
     }
 });
+
+Swal.fire({
+    title: 'Welcome!',
+    text: 'This application uses a 3D model of a museum and geotagged emotion data to explore  which exhibits in the Vincent Van Gogh Centre visitors find the most exciting. In the museum, visitors are able to discover how Vincent van Gogh lived and painted while in Nuenen. The Vincent Van Gogh Centre is currently being planned to undergo renovation, lets find out which exhibits the museum director should keep!',
+    imageUrl: 'img/nuenen.gif',
+    imageWidth: 400,
+    imageHeight: 300,
+    imageAlt: 'nuenen 3d model',
+    confirmButtonText:
+      '<i class="fa fa-thumbs-up"></i> Lets go!',
+    animation: true
+  })
